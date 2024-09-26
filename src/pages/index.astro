@@ -1,4 +1,54 @@
 ---
+import Layout from '../layouts/Layout.astro';
 
+interface IChampionData {
+	name: string
+	title: string
+	splashArt: string
+	tags: string[]
+}
+
+const response = await fetch('https://ddragon.leagueoflegends.com/cdn/14.19.1/data/es_MX/champion.json');
+const { data } = await response.json();
+
+const champions: IChampionData[] = Object.entries(data).map(([name, champ]) => {
+	const typeChamp = champ as any;
+	return {
+		name,
+		title: typeChamp.title,
+		splashArt: `https://ddragon.leagueoflegends.com/cdn/14.19.1/img/champion/${name}.png`,
+		tags: typeChamp.tags
+	};
+});
 ---
 
+<Layout title='ForgeBz'>
+	<main class="m-10">
+		<section class="grid grid-cols-5 gap-6">
+			{
+				champions && champions.map(champ => (
+					<div class="champ-card">
+						<h1>{champ.name}</h1>
+						<div class="justify-self-center">
+							<img src={champ.splashArt} alt={champ.name} height="80" width="80"/>
+						</div>
+						<span class="text-center">{champ.title}</span>
+						<div>
+							{
+								champ.tags.map(tag => (
+									<p>{tag}</p>
+								))
+							}
+						</div>
+					</div>
+				))
+			}
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.champ-card {
+		@apply flex justify-center items-center flex-col border rounded-md bg-indigo-900 hover:bg-indigo-700 hover:-translate-y-1 transition ease-out delay-100
+	}
+</style>
